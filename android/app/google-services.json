@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1063596716078",
+    "project_id": "mentor-94682",
+    "storage_bucket": "mentor-94682.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1063596716078:android:b6820f72b824f86011afbf",
+        "android_client_info": {
+          "package_name": "com.example.mentor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1063596716078-c7lie2h3cav72ngt2n20ku6bevs95s5o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3DC8UOIHfy7nBcnFP1CDDXRuXJuOKCH4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1063596716078-c7lie2h3cav72ngt2n20ku6bevs95s5o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
