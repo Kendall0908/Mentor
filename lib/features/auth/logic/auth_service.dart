@@ -89,6 +89,14 @@ class AuthService {
     });
   }
 
+  // 💾 SAUVEGARDER UN CHOIX D'ORIENTATION
+  Future<void> saveUserChoice(String uid, Map<String, dynamic> choiceData) async {
+    await _firestore.collection('users').doc(uid).collection('choices').add({
+      ...choiceData,
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
+
   // 🔄 STREAM DE L'UTILISATEUR ACTUEL
   Stream<User?> get userStream => _auth.authStateChanges();
 

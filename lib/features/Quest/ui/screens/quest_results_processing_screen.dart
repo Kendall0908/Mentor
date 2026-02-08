@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../../core/constants/app_colors.dart';
 import 'quest_results_screen.dart';
+import '../../data/ai_recommendation_service.dart';
 
 class QuestResultsProcessingScreen extends StatefulWidget {
   const QuestResultsProcessingScreen({super.key});
@@ -50,7 +53,7 @@ class _QuestResultsProcessingScreenState extends State<QuestResultsProcessingScr
       });
     });
 
-    // Simulate Progress
+    // Simulate Progress & Generate AI Recommendations
     _timer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
       if (!mounted) {
         timer.cancel();
@@ -61,17 +64,78 @@ class _QuestResultsProcessingScreenState extends State<QuestResultsProcessingScr
         if (_progressValue >= 1.0) {
           _progressValue = 1.0;
           timer.cancel();
-          // Navigate to Home after completion
-          Future.delayed(const Duration(milliseconds: 500), () {
-            if (mounted) {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const QuestResultsScreen()),
-              );
-            }
-          });
+          // Generate recommendations and navigate
+          _generateAndNavigate();
         }
       });
+    });
+  }
+
+  /// Génère les recommandations IA et navigue vers l'écran de résultats
+  Future<void> _generateAndNavigate() async {
+    try {
+      final uid = FirebaseAuth.instance.currentUser?.uid;
+      if (uid == null) {
+        _navigateToResults([]);
+        return;
+      }
+
+      // Récupérer les données du questionnaire depuis Firestore
+      final userDoc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      final userData = userDoc.data();
+
+      if (userData == null) {
+        _navigateToResults([]);
+        return;
+      }
+
+      // Extraire les données du questionnaire
+      final passions = List<String>.from(userData['orientation_passions'] ?? []);
+      final skillsMap = Map<String, double>.from(
+        (userData['orientation_skills'] as Map<String, dynamic>?)?.map(
+          (key, value) => MapEntry(key, (value as num).toDouble())
+        ) ?? {}
+      );
+      final environmentRanking = List<String>.from(userData['orientation_environment_ranking'] ?? []);
+
+      // Générer les recommandations avec l'IA
+      final aiService = AIRecommendationService();
+      final recommendations = await aiService.generateRecommendations(
+        passions: passions,
+        skills: skillsMap,
+        environmentRanking: environmentRanking,
+      );
+
+      // Sauvegarder les résultats dans Firestore
+      await FirebaseFirestore.instance.collection('users').doc(uid).update({
+        'orientationResults': {
+          'recommendations': recommendations.map((r) => {
+            'programId': r.programData.id,
+            'programName': r.programData.name,
+            'matchPercentage': r.matchPercentage,
+            'matchReason': r.matchReason,
+          }).toList(),
+          'generatedAt': FieldValue.serverTimestamp(),
+        }
+      });
+
+      _navigateToResults(recommendations);
+    } catch (e) {
+      debugPrint('Erreur génération recommandations: $e');
+      _navigateToResults([]);
+    }
+  }
+
+  void _navigateToResults(List<ProgramRecommendation> recommendations) {
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => QuestResultsScreen(recommendations: recommendations),
+          ),
+        );
+      }
     });
   }
 

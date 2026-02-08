@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:mentor/features/flieres/data/program_data.dart';
+import '../../../../core/models/ecole_model.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:mentor/features/home/ui/screens/home_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mentor/features/auth/logic/auth_service.dart';
 
 class ProgramDetailScreenDynamic extends StatelessWidget {
   final ProgramData programData;
@@ -22,6 +26,19 @@ class ProgramDetailScreenDynamic extends StatelessWidget {
         backgroundColor: Colors.blue,
         title: Text(programData.name),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.home),
+            tooltip: 'Retour à l\'accueil',
+            onPressed: () {
+              // Navigate to home screen and remove all previous routes
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => const HomeScreen()),
+                (route) => false,
+              );
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -117,16 +134,38 @@ class ProgramDetailScreenDynamic extends StatelessWidget {
             ),
 
             /// SCHOOLS
-            _sectionTitle("Écoles locales"),
-            ...programData.schools.map(
-              (school) => _schoolCard(school),
-            ),
+            if (programData.availableSchools.isNotEmpty) ...[
+              _sectionTitle("Écoles disponibles (${programData.availableSchools.length})"),
+              ...programData.availableSchools.take(10).map(
+                (school) => _realSchoolCard(school),
+              ),
+              if (programData.availableSchools.length > 10)
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Center(
+                    child: Text(
+                      "+ ${programData.availableSchools.length - 10} autres écoles",
+                      style: TextStyle(color: Colors.grey.shade600),
+                    ),
+                  ),
+                ),
+            ] else ...[
+              _sectionTitle("Écoles recommandées"),
+              ...programData.schools.map(
+                (school) => _schoolCard(school),
+              ),
+            ],
 
             const SizedBox(height: 30),
           ],
         ),
       ),
     );
+  }
+
+
+  Widget _realSchoolCard(EcoleModel school) {
+    return RealSchoolCard(school: school, programName: programData.name);
   }
 
   Widget _schoolCard(SchoolData school) {
@@ -246,6 +285,243 @@ class ProgramDetailScreenDynamic extends StatelessWidget {
           Expanded(child: Text(label)),
           Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
         ],
+      ),
+    );
+  }
+}
+
+class RealSchoolCard extends StatefulWidget {
+  final EcoleModel school;
+  final String programName;
+
+  const RealSchoolCard({super.key, required this.school, required this.programName});
+
+  @override
+  State<RealSchoolCard> createState() => _RealSchoolCardState();
+}
+
+class _RealSchoolCardState extends State<RealSchoolCard> {
+  bool _isExpanded = false;
+  bool _isLoading = false;
+
+  Future<void> _validateChoice() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Veuillez vous connecter pour valider ce choix.')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await AuthService().saveUserChoice(user.uid, {
+        'programName': widget.programName,
+        'schoolName': widget.school.etablissement,
+        'schoolCity': widget.school.ville,
+        'schoolId': widget.school.numero,
+        'validatedAt': DateTime.now().toIso8601String(),
+        'status': 'validated',
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('✅ Choix validé : ${widget.programName} à ${widget.school.etablissement}'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Erreur : $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+            )
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.school, color: Colors.blue),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.school.etablissement,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.location_on, size: 14, color: Colors.grey),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              "${widget.school.commune}, ${widget.school.ville}",
+                              style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            const Divider(),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Scolarité",
+                      style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
+                    ),
+                    Text(
+                      widget.school.fraisInscription,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      "Capacité",
+                      style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade50,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        widget.school.capaciteAccueil,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue.shade700,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            
+            // Expandable Section
+            if (_isExpanded) ...[
+              const SizedBox(height: 16),
+              const Text("Filières disponibles :", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: widget.school.filieres.map((f) => Chip(
+                  label: Text(f, style: const TextStyle(fontSize: 10)),
+                  backgroundColor: Colors.grey.shade50,
+                  padding: EdgeInsets.zero,
+                  visualDensity: VisualDensity.compact,
+                )).toList(),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: _isLoading ? null : () {
+                    // Confirmation dialog
+                    showDialog(
+                      context: context, 
+                      builder: (ctx) => AlertDialog(
+                        title: const Text("Valider ce choix ?"),
+                        content: Text("Vous allez choisir la filière ${widget.programName} à ${widget.school.etablissement}."),
+                        actions: [
+                          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Annuler")),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(ctx);
+                              _validateChoice();
+                            }, 
+                            child: const Text("Confirmer"),
+                          )
+                        ],
+                      )
+                    );
+                  },
+                  icon: _isLoading 
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : const Icon(Icons.check_circle_outline),
+                  label: Text(_isLoading ? "Validation..." : "Valider ce choix"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+            ],
+
+            // Expand Toggle Button
+            const SizedBox(height: 8),
+            Center(
+              child: TextButton.icon(
+                onPressed: () => setState(() => _isExpanded = !_isExpanded),
+                icon: Icon(_isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, size: 16),
+                label: Text(_isExpanded ? "Moins de détails" : "Voir détails & Valider", style: const TextStyle(fontSize: 12)),
+style: TextButton.styleFrom(foregroundColor: Colors.blue),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

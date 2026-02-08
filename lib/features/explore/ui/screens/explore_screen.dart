@@ -59,6 +59,76 @@ class _ExploreScreenState extends State<ExploreScreen> {
       "tag": "TECHNIQUE",
       "tagColor": Colors.lightBlue,
     },
+    {
+      "title": "Commerce & Marketing",
+      "subtitle": "Maîtriser l'art de la vente et de la stratégie",
+      "imageUrl": "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=500&q=80",
+      "tag": "BUSINESS",
+      "tagColor": Colors.purple,
+    },
+    {
+      "title": "Psychologie",
+      "subtitle": "Comprendre l'esprit humain et ses comportements",
+      "imageUrl": "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=500&q=80",
+      "tag": "HUMAIN",
+      "tagColor": Colors.teal,
+    },
+    {
+      "title": "Communication",
+      "subtitle": "Façonner les messages qui influencent le monde",
+      "imageUrl": "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=500&q=80",
+      "tag": "MÉDIA",
+      "tagColor": Colors.pink,
+    },
+    {
+      "title": "Génie Civil",
+      "subtitle": "Construire les infrastructures de demain",
+      "imageUrl": "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=500&q=80",
+      "tag": "BÂTIMENT",
+      "tagColor": Colors.brown,
+    },
+    {
+      "title": "Agriculture & Agro",
+      "subtitle": "Nourrir le monde de manière durable",
+      "imageUrl": "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=500&q=80",
+      "tag": "VITAL",
+      "tagColor": Colors.lightGreen,
+    },
+    {
+      "title": "Tourisme & Hôtellerie",
+      "subtitle": "Créer des expériences inoubliables",
+      "imageUrl": "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=500&q=80",
+      "tag": "VOYAGE",
+      "tagColor": Colors.cyan,
+    },
+    {
+      "title": "Arts & Spectacle",
+      "subtitle": "Exprimer la créativité sous toutes ses formes",
+      "imageUrl": "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=500&q=80",
+      "tag": "CULTURE",
+      "tagColor": Colors.deepOrange,
+    },
+    {
+      "title": "Finance & Banque",
+      "subtitle": "Gérer les flux financiers mondiaux",
+      "imageUrl": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=500&q=80",
+      "tag": "FINANCE",
+      "tagColor": Colors.amber,
+    },
+    {
+      "title": "Éducation & Enseignement",
+      "subtitle": "Former les générations futures",
+      "imageUrl": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=500&q=80",
+      "tag": "FORMATION",
+      "tagColor": Colors.blueGrey,
+    },
+    {
+      "title": "Sport & Management",
+      "subtitle": "Allier passion sportive et gestion professionnelle",
+      "imageUrl": "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=500&q=80",
+      "tag": "SPORT",
+      "tagColor": Colors.redAccent,
+    },
   ];
 
   // Données initiales pour les métiers
@@ -313,62 +383,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
             
             const SizedBox(height: 25),
 
-            // Personalize Recommendations Card
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFFE3F2FD),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.blue.shade100),
-              ),
-              child: Row(
-                children: [
-                   Container(
-                     padding: const EdgeInsets.all(12),
-                     decoration: const BoxDecoration(
-                       color: AppColors.questBlue,
-                       shape: BoxShape.circle,
-                     ),
-                     child: const Icon(Icons.upload_file, color: Colors.white),
-                   ),
-                   const SizedBox(width: 15),
-                   Expanded(
-                     child: Column(
-                       crossAxisAlignment: CrossAxisAlignment.start,
-                       children: [
-                         const Text(
-                           "Personnaliser mes recommandations",
-                           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black),
-                         ),
-                         const SizedBox(height: 4),
-                         Text(
-                           "Ajoutez votre CV ou bulletin pour une orientation sur mesure.",
-                           style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
-                         ),
-                         const SizedBox(height: 15),
-                         SizedBox(
-                           width: double.infinity,
-                           height: 45,
-                           child: ElevatedButton.icon(
-                             onPressed: () {},
-                             icon: const Icon(Icons.add_circle_outline, size: 18),
-                             label: const Text("Déposer un document", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                             style: ElevatedButton.styleFrom(
-                               backgroundColor: AppColors.questBlue,
-                               foregroundColor: Colors.white,
-                               elevation: 0,
-                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                             ),
-                           ),
-                         )
-                       ],
-                     ),
-                   )
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 35),
 
             // Trending Tracks
             _sectionHeader("Filières en vogue", "Voir tout", onAction: () {

@@ -13,25 +13,40 @@ class QuestSkillsScreen extends StatefulWidget {
 
 class _QuestSkillsScreenState extends State<QuestSkillsScreen> {
   // Skill data model
+  // Skill data model - Scale 0 to 10
   final List<Map<String, dynamic>> _skills = [
-    {'name': 'Mathématiques', 'icon': Icons.calculate, 'value': 2.0, 'color': Colors.blue.shade100, 'iconColor': Colors.blue},
-    {'name': 'Langues', 'icon': Icons.language, 'value': 3.0, 'color': Colors.orange.shade100, 'iconColor': Colors.orange},
-    {'name': 'Sciences', 'icon': Icons.science, 'value': 1.0, 'color': Colors.green.shade100, 'iconColor': Colors.green},
-    {'name': 'Littérature', 'icon': Icons.menu_book, 'value': 2.0, 'color': Colors.purple.shade100, 'iconColor': Colors.purple},
-    {'name': 'Histoire-Géo', 'icon': Icons.public, 'value': 1.0, 'color': Colors.brown.shade100, 'iconColor': Colors.brown},
+    {'name': 'Mathématiques', 'icon': Icons.calculate, 'value': 5.0, 'color': Colors.blue.shade100, 'iconColor': Colors.blue},
+    {'name': 'Langues', 'icon': Icons.language, 'value': 7.0, 'color': Colors.orange.shade100, 'iconColor': Colors.orange},
+    {'name': 'Sciences', 'icon': Icons.science, 'value': 4.0, 'color': Colors.green.shade100, 'iconColor': Colors.green},
+    {'name': 'Littérature', 'icon': Icons.menu_book, 'value': 6.0, 'color': Colors.purple.shade100, 'iconColor': Colors.purple},
+    {'name': 'Histoire-Géo', 'icon': Icons.public, 'value': 4.0, 'color': Colors.brown.shade100, 'iconColor': Colors.brown},
+    {'name': 'Arts Plastiques', 'icon': Icons.palette, 'value': 3.0, 'color': Colors.pink.shade100, 'iconColor': Colors.pink},
+    {'name': 'Musique', 'icon': Icons.music_note, 'value': 3.0, 'color': Colors.indigo.shade100, 'iconColor': Colors.indigo},
+    {'name': 'Sport (EPS)', 'icon': Icons.sports_soccer, 'value': 6.0, 'color': Colors.red.shade100, 'iconColor': Colors.red},
+    {'name': 'Informatique', 'icon': Icons.computer, 'value': 5.0, 'color': Colors.cyan.shade100, 'iconColor': Colors.cyan},
+    {'name': 'Économie', 'icon': Icons.trending_up, 'value': 4.0, 'color': Colors.amber.shade100, 'iconColor': Colors.amber},
+    {'name': 'Philosophie', 'icon': Icons.psychology, 'value': 4.0, 'color': Colors.deepPurple.shade100, 'iconColor': Colors.deepPurple},
+    {'name': 'Biologie', 'icon': Icons.biotech, 'value': 4.0, 'color': Colors.lightGreen.shade100, 'iconColor': Colors.lightGreen},
+    {'name': 'Chimie', 'icon': Icons.science_outlined, 'value': 4.0, 'color': Colors.teal.shade100, 'iconColor': Colors.teal},
+    {'name': 'Physique', 'icon': Icons.bolt, 'value': 4.0, 'color': Colors.blueGrey.shade100, 'iconColor': Colors.blueGrey},
+    {'name': 'Communication', 'icon': Icons.campaign, 'value': 5.0, 'color': Colors.deepOrange.shade100, 'iconColor': Colors.deepOrange},
   ];
 
   String _getLevelLabel(double value) {
-    if (value <= 0) return "Débutant";
-    if (value <= 1) return "Moyen";
-    if (value <= 2) return "Avancé";
+    if (value <= 1) return "Débutant";
+    if (value <= 3) return "Élémentaire";
+    if (value <= 5) return "Intermédiaire";
+    if (value <= 7) return "Avancé";
+    if (value <= 9) return "Très Avancé";
     return "Expert";
   }
 
   Color _getLevelColor(double value) {
-    if (value <= 0) return Colors.grey;
-    if (value <= 1) return Colors.blueAccent;
-    if (value <= 2) return AppColors.questBlue;
+    if (value <= 1) return Colors.grey;
+    if (value <= 3) return Colors.blueAccent.withOpacity(0.6);
+    if (value <= 5) return AppColors.questBlue;
+    if (value <= 7) return Colors.indigo;
+    if (value <= 9) return Colors.deepPurple;
     return Colors.green; // Expert
   }
 
@@ -257,8 +272,8 @@ class _QuestSkillsScreenState extends State<QuestSkillsScreen> {
             child: Slider(
               value: value,
               min: 0,
-              max: 3,
-              divisions: 3,
+              max: 10,
+              divisions: 10,
               onChanged: (newValue) {
                 setState(() {
                   _skills[index]['value'] = newValue;

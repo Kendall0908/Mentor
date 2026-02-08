@@ -28,6 +28,18 @@ class _QuestInterestsScreenState extends State<QuestInterestsScreen> {
     {'name': 'Voyage', 'image': 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80', 'selected': false}, // Switzerland
     {'name': 'Tech', 'image': 'https://images.unsplash.com/photo-1518770660439-4636190af475?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80', 'selected': false}, // Chip
     {'name': 'Art', 'image': 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80', 'selected': false}, // Painting
+    {'name': 'Science', 'image': 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80', 'selected': false}, // Laboratory
+    {'name': 'Business', 'image': 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80', 'selected': false}, // Office
+    {'name': 'Nature', 'image': 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80', 'selected': false}, // Forest
+    {'name': 'Photographie', 'image': 'https://images.unsplash.com/photo-1452587925148-ce544e77e70d?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80', 'selected': false}, // Camera
+    {'name': 'Écriture', 'image': 'https://images.unsplash.com/photo-1455390582262-044cdead277a?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80', 'selected': false}, // Writing
+    {'name': 'Cinéma', 'image': 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80', 'selected': false}, // Movie theater
+    {'name': 'Architecture', 'image': 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80', 'selected': false}, // Building
+    {'name': 'Médecine', 'image': 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80', 'selected': false}, // Medical
+    {'name': 'Droit', 'image': 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80', 'selected': false}, // Law books
+    {'name': 'Psychologie', 'image': 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80', 'selected': false}, // Brain
+    {'name': 'Ingénierie', 'image': 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80', 'selected': false}, // Engineering
+    {'name': 'Éducation', 'image': 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80', 'selected': false}, // Teaching
   ];
 
   @override
