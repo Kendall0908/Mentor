@@ -97,6 +97,37 @@ class AuthService {
     });
   }
 
+  // ❤️ GESTION DES FAVORIS
+  Future<void> toggleFavorite(String uid, String programId) async {
+    final docRef = _firestore.collection('users').doc(uid);
+    final doc = await docRef.get();
+    
+    if (doc.exists) {
+      final data = doc.data() as Map<String, dynamic>;
+      final favorites = List<String>.from(data['favorites'] ?? []);
+      
+      if (favorites.contains(programId)) {
+        favorites.remove(programId);
+      } else {
+        favorites.add(programId);
+      }
+      
+      await docRef.update({'favorites': favorites});
+    } else {
+       // Create doc if not exists (should not happen for logged user but good for safety)
+       await docRef.set({'favorites': [programId]}, SetOptions(merge: true));
+    }
+  }
+
+  Stream<List<String>> getFavorites(String uid) {
+    return _firestore.collection('users').doc(uid).snapshots().map((snapshot) {
+      if (snapshot.exists && snapshot.data() != null) {
+        return List<String>.from(snapshot.data()!['favorites'] ?? []);
+      }
+      return [];
+    });
+  }
+
   // 🔄 STREAM DE L'UTILISATEUR ACTUEL
   Stream<User?> get userStream => _auth.authStateChanges();
 

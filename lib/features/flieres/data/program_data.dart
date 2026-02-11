@@ -22,6 +22,10 @@ class ProgramData {
   final List<String> workEnvironments;
   final String category;
 
+  // Nouveaux champs pour le multimédia
+  final List<Map<String, String>> videoLinks;
+  final List<Map<String, String>> audioLinks;
+
   ProgramData({
     required this.id,
     required this.name,
@@ -41,6 +45,8 @@ class ProgramData {
     this.requiredSkills = const {},
     this.workEnvironments = const [],
     this.category = '',
+    this.videoLinks = const [],
+    this.audioLinks = const [],
   });
 }
 
@@ -113,6 +119,26 @@ final ProgramData softwareEngineeringProgram = ProgramData(
       websiteUrl: 'https://www.esatic.ci',
     ),
   ],
+  videoLinks: [
+    {
+      'title': 'Découvrir le métier de Développeur',
+      'url': 'https://www.youtube.com/watch?v=fqBfVbI3u0E',
+    },
+    {
+      'title': 'Le quotidien d\'un ingénieur logiciel',
+      'url': 'https://www.youtube.com/watch?v=M5yGjkFjGsg',
+    },
+  ],
+  audioLinks: [
+    {
+      'title': 'Podcast: L\'avenir du code',
+      'url': 'https://soundcloud.com/example/future-of-code',
+    },
+     {
+      'title': 'Témoignage: Mon parcours',
+      'url': 'https://soundcloud.com/example/journey',
+    },
+  ],
 );
 
 /// 🎨 DESIGN UX/UI
@@ -146,6 +172,22 @@ final ProgramData uxDesignProgram = ProgramData(
       websiteUrl: 'https://example.com',
     ),
   ],
+  videoLinks: [
+    {
+      'title': 'Le Design UX expliqué',
+      'url': 'https://www.youtube.com/watch?v=Hu4Yfq-g7_Y',
+    },
+    {
+      'title': 'Ma vie de Designer',
+      'url': 'https://www.youtube.com/watch?v=UmXv1e_Xn6Q',
+    },
+  ],
+  audioLinks: [
+    {
+      'title': 'Podcast: Design & Tech',
+      'url': 'https://soundcloud.com/example/design-tech',
+    },
+  ],
 );
 
 /// 📱 MARKETING DIGITAL
@@ -177,6 +219,18 @@ final ProgramData digitalMarketingProgram = ProgramData(
       imageUrl: '/lib/features/flieres/ui/assets/images/esatic_logo.png',
       websiteUrl: 'https://example.com',
     ),
+  ],
+  videoLinks: [
+    {
+      'title': 'Les bases du Marketing Digital',
+      'url': 'https://www.youtube.com/watch?v=nU-IIXJL0V4',
+    },
+  ],
+  audioLinks: [
+    {
+      'title': 'Podcast: Growth Hacking',
+      'url': 'https://soundcloud.com/example/growth',
+    },
   ],
 );
 
@@ -210,6 +264,13 @@ final ProgramData architectureProgram = ProgramData(
       websiteUrl: 'https://example.com',
     ),
   ],
+  videoLinks: [
+    {
+      'title': 'Documentaire: Architectes stars',
+      'url': 'https://www.youtube.com/watch?v=C0MhR2F1g0c',
+    },
+  ],
+  audioLinks: [],
 );
 
 /// 🏥 MÉDECINE
@@ -241,6 +302,18 @@ final ProgramData medicineProgram = ProgramData(
       imageUrl: '/lib/features/flieres/ui/assets/images/esatic_logo.png',
       websiteUrl: 'https://example.com',
     ),
+  ],
+  videoLinks: [
+    {
+      'title': 'Vie d\'interne en médecine',
+      'url': 'https://www.youtube.com/watch?v=J5a7h8wqw4c',
+    },
+  ],
+  audioLinks: [
+    {
+      'title': 'Podcast: Hippocrate',
+      'url': 'https://soundcloud.com/example/hippocrate',
+    },
   ],
 );
 
@@ -275,6 +348,13 @@ final ProgramData lawProgram = ProgramData(
       websiteUrl: 'https://example.com',
     ),
   ],
+  videoLinks: [
+    {
+      'title': 'Le métier d\'avocat',
+      'url': 'https://www.youtube.com/watch?v=_p_s1F1g1c',
+    },
+  ],
+  audioLinks: [],
 );
 
 /// 📰 JOURNALISME
@@ -307,6 +387,8 @@ final ProgramData journalismProgram = ProgramData(
       websiteUrl: 'https://example.com',
     ),
   ],
+  videoLinks: [],
+  audioLinks: [],
 );
 
 /// 💼 COMMERCE INTERNATIONAL
@@ -340,6 +422,8 @@ final ProgramData internationalBusinessProgram = ProgramData(
       websiteUrl: 'https://example.com',
     ),
   ],
+  videoLinks: [],
+  audioLinks: [],
 );
 
 /// 💅 ESTHÉTIQUE & COSMÉTOLOGIE
@@ -371,6 +455,8 @@ final ProgramData cosmetologyProgram = ProgramData(
       websiteUrl: 'https://example.com',
     ),
   ],
+  videoLinks: [],
+  audioLinks: [],
 );
 
 /// 🎓 ENSEIGNEMENT
@@ -403,6 +489,8 @@ final ProgramData teachingProgram = ProgramData(
       websiteUrl: 'https://example.com',
     ),
   ],
+  videoLinks: [],
+  audioLinks: [],
 );
 
 /// Liste de tous les programmes

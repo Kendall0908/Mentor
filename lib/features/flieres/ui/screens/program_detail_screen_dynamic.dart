@@ -20,6 +20,8 @@ class ProgramDetailScreenDynamic extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF6F8FC),
       appBar: AppBar(
@@ -27,6 +29,24 @@ class ProgramDetailScreenDynamic extends StatelessWidget {
         title: Text(programData.name),
         centerTitle: true,
         actions: [
+           if (user != null)
+            StreamBuilder<List<String>>(
+              stream: AuthService().getFavorites(user.uid),
+              builder: (context, snapshot) {
+                final favorites = snapshot.data ?? [];
+                final isFavorite = favorites.contains(programData.id);
+
+                return IconButton(
+                  icon: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: isFavorite ? Colors.red : Colors.white,
+                  ),
+                  onPressed: () {
+                    AuthService().toggleFavorite(user.uid, programData.id);
+                  },
+                );
+              },
+            ),
           IconButton(
             icon: const Icon(Icons.home),
             tooltip: 'Retour à l\'accueil',
@@ -132,6 +152,35 @@ class ProgramDetailScreenDynamic extends StatelessWidget {
                     .toList(),
               ),
             ),
+            
+            /// MEDIA SECTION (New)
+            if (programData.videoLinks.isNotEmpty || programData.audioLinks.isNotEmpty) ...[
+               _sectionTitle("Multimédia"),
+               if (programData.videoLinks.isNotEmpty) ...[
+                 Padding(
+                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                   child: const Text("Vidéos", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                 ),
+                 ...programData.videoLinks.map((video) => _mediaValidCard(
+                   title: video['title'] ?? '',
+                   icon: Icons.play_circle_fill,
+                   color: Colors.red,
+                   onTap: () => _openWebsite(video['url'] ?? ''),
+                 )),
+               ],
+               if (programData.audioLinks.isNotEmpty) ...[
+                 Padding(
+                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                   child: const Text("Audios", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                 ),
+                 ...programData.audioLinks.map((audio) => _mediaValidCard(
+                   title: audio['title'] ?? '',
+                   icon: Icons.headset,
+                   color: Colors.orange,
+                   onTap: () => _openWebsite(audio['url'] ?? ''),
+                 )),
+               ],
+            ],
 
             /// SCHOOLS
             if (programData.availableSchools.isNotEmpty) ...[
@@ -285,6 +334,30 @@ class ProgramDetailScreenDynamic extends StatelessWidget {
           Expanded(child: Text(label)),
           Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
         ],
+      ),
+    );
+  }
+
+  Widget _mediaValidCard({
+    required String title,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: ListTile(
+          leading: CircleAvatar(
+            backgroundColor: color.withOpacity(0.1),
+            child: Icon(icon, color: color),
+          ),
+          title: Text(title, maxLines: 2, overflow: TextOverflow.ellipsis),
+          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+          onTap: onTap,
+        ),
       ),
     );
   }
