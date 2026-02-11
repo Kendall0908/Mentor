@@ -31,13 +31,32 @@ class _QuestProfileScreenState extends State<QuestProfileScreen> {
   ];
 
   // Dynamic list of interests for the profile screen
+  // Dynamic list of interests for the profile screen
   final List<Map<String, dynamic>> _profileInterests = [
-    {'label': 'Technologie', 'selected': true},
-    {'label': 'Arts & Design', 'selected': false},
-    {'label': 'Entrepreneuriat', 'selected': true},
-    {'label': 'Santé & Médical', 'selected': false},
-    {'label': 'Environnement', 'selected': true},
-    {'label': 'Droit & Politique', 'selected': false},
+    {'label': 'Mode', 'selected': false},
+    {'label': 'Esthétique', 'selected': false},
+    {'label': 'Beauté', 'selected': false},
+    {'label': 'Coiffure', 'selected': false},
+    {'label': 'Couture', 'selected': false},
+    {'label': 'Sport', 'selected': false},
+    {'label': 'Gaming', 'selected': false},
+    {'label': 'Musique', 'selected': false},
+    {'label': 'Cuisine', 'selected': false},
+    {'label': 'Voyage', 'selected': false},
+    {'label': 'Tech', 'selected': false},
+    {'label': 'Art', 'selected': false},
+    {'label': 'Science', 'selected': false},
+    {'label': 'Business', 'selected': false},
+    {'label': 'Nature', 'selected': false},
+    {'label': 'Photographie', 'selected': false},
+    {'label': 'Écriture', 'selected': false},
+    {'label': 'Cinéma', 'selected': false},
+    {'label': 'Architecture', 'selected': false},
+    {'label': 'Médecine', 'selected': false},
+    {'label': 'Droit', 'selected': false},
+    {'label': 'Psychologie', 'selected': false},
+    {'label': 'Ingénierie', 'selected': false},
+    {'label': 'Éducation', 'selected': false},
   ];
 
   void _addNewInterest(String interest) async {
@@ -46,12 +65,17 @@ class _QuestProfileScreenState extends State<QuestProfileScreen> {
         _profileInterests.add({'label': interest, 'selected': true});
       });
       
-      // Sauvegarder dans Firestore
+      // Sauvegarder dans Firestore - tous les intérêts sélectionnés
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         try {
+          final selectedInterests = _profileInterests
+              .where((e) => e['selected'] == true)
+              .map((e) => e['label'])
+              .toList();
+          
           await AuthService().updateUserData(user.uid, {
-            'interests': _profileInterests.map((e) => e['label']).toList(),
+            'interests': selectedInterests,
           });
           
           if (mounted) {
@@ -115,6 +139,78 @@ class _QuestProfileScreenState extends State<QuestProfileScreen> {
         ],
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserInterests();
+  }
+
+  /// Charge les intérêts de l'utilisateur depuis Firestore
+  Future<void> _loadUserInterests() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        final userData = await AuthService().getUserData(user.uid);
+        if (userData != null) {
+          // Charger les intérêts sauvegardés
+          // Charger les intérêts sauvegardés ou initiaux
+          List<dynamic>? interestsToLoad = userData['interests'] as List?;
+          if (interestsToLoad == null || interestsToLoad.isEmpty) {
+            interestsToLoad = userData['orientation_initial_interests'] as List?;
+          }
+
+          if (interestsToLoad != null && interestsToLoad.isNotEmpty) {
+            setState(() {
+              // 1. Réinitialiser tout à non sélectionné d'abord
+              for (var interest in _profileInterests) {
+                interest['selected'] = false;
+              }
+
+              // 2. Parcourir les intérêts sauvegardés
+              for (var savedItem in interestsToLoad!) {
+                final String savedLabel = savedItem.toString();
+                
+                // Chercher si cet intérêt existe déjà dans la liste
+                final index = _profileInterests.indexWhere(
+                  (element) => element['label'].toString().toLowerCase() == savedLabel.toLowerCase()
+                );
+
+                if (index != -1) {
+                  // Si oui, le marquer comme sélectionné
+                  _profileInterests[index]['selected'] = true;
+                } else {
+                  // Si non (intérêt custom), l'ajouter à la liste
+                  _profileInterests.add({
+                    'label': savedLabel,
+                    'selected': true,
+                  });
+                }
+              }
+            });
+          }
+          
+          // Charger le niveau et la filière
+          final level = userData['orientation_level'] as String?;
+          final sector = userData['orientation_sector'] as String?;
+          
+          if (level != null) {
+            setState(() {
+              _selectedLevel = level;
+            });
+          }
+          
+          if (sector != null) {
+            setState(() {
+              _selectedSector = sector;
+            });
+          }
+        }
+      } catch (e) {
+        debugPrint('Erreur lors du chargement des intérêts: $e');
+      }
+    }
   }
 
   @override

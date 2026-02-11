@@ -4,6 +4,8 @@ import 'all_tracks_screen.dart';
 import '../../../Quest/ui/screens/quest_welcome_screen.dart';
 import '../../../auth/logic/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mentor/features/flieres/data/program_data.dart';
+import 'package:mentor/features/flieres/ui/screens/program_detail_screen_dynamic.dart';
 
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({super.key});
@@ -12,8 +14,11 @@ class ExploreScreen extends StatefulWidget {
   State<ExploreScreen> createState() => _ExploreScreenState();
 }
 
-class _ExploreScreenState extends State<ExploreScreen> {
+class _ExploreScreenState extends State<ExploreScreen> with SingleTickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
   
   // Données initiales pour les filières
   final List<Map<String, dynamic>> _allTracks = [
@@ -59,6 +64,76 @@ class _ExploreScreenState extends State<ExploreScreen> {
       "tag": "TECHNIQUE",
       "tagColor": Colors.lightBlue,
     },
+    {
+      "title": "Commerce & Marketing",
+      "subtitle": "Maîtriser l'art de la vente et de la stratégie",
+      "imageUrl": "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=500&q=80",
+      "tag": "BUSINESS",
+      "tagColor": Colors.purple,
+    },
+    {
+      "title": "Psychologie",
+      "subtitle": "Comprendre l'esprit humain et ses comportements",
+      "imageUrl": "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=500&q=80",
+      "tag": "HUMAIN",
+      "tagColor": Colors.teal,
+    },
+    {
+      "title": "Communication",
+      "subtitle": "Façonner les messages qui influencent le monde",
+      "imageUrl": "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=500&q=80",
+      "tag": "MÉDIA",
+      "tagColor": Colors.pink,
+    },
+    {
+      "title": "Génie Civil",
+      "subtitle": "Construire les infrastructures de demain",
+      "imageUrl": "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=500&q=80",
+      "tag": "BÂTIMENT",
+      "tagColor": Colors.brown,
+    },
+    {
+      "title": "Agriculture & Agro",
+      "subtitle": "Nourrir le monde de manière durable",
+      "imageUrl": "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=500&q=80",
+      "tag": "VITAL",
+      "tagColor": Colors.lightGreen,
+    },
+    {
+      "title": "Tourisme & Hôtellerie",
+      "subtitle": "Créer des expériences inoubliables",
+      "imageUrl": "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=500&q=80",
+      "tag": "VOYAGE",
+      "tagColor": Colors.cyan,
+    },
+    {
+      "title": "Arts & Spectacle",
+      "subtitle": "Exprimer la créativité sous toutes ses formes",
+      "imageUrl": "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=500&q=80",
+      "tag": "CULTURE",
+      "tagColor": Colors.deepOrange,
+    },
+    {
+      "title": "Finance & Banque",
+      "subtitle": "Gérer les flux financiers mondiaux",
+      "imageUrl": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=500&q=80",
+      "tag": "FINANCE",
+      "tagColor": Colors.amber,
+    },
+    {
+      "title": "Éducation & Enseignement",
+      "subtitle": "Former les générations futures",
+      "imageUrl": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=500&q=80",
+      "tag": "FORMATION",
+      "tagColor": Colors.blueGrey,
+    },
+    {
+      "title": "Sport & Management",
+      "subtitle": "Allier passion sportive et gestion professionnelle",
+      "imageUrl": "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=500&q=80",
+      "tag": "SPORT",
+      "tagColor": Colors.redAccent,
+    },
   ];
 
   // Données initiales pour les métiers
@@ -99,6 +174,26 @@ class _ExploreScreenState extends State<ExploreScreen> {
     _filteredCareers = List.from(_allCareers);
     _searchController.addListener(_onSearchChanged);
     _loadCustomCareers();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+
+    _fadeAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOut,
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.15),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutQuart,
+    ));
+
+    _controller.forward();
   }
 
   Future<void> _loadCustomCareers() async {
@@ -242,6 +337,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -275,9 +371,13 @@ class _ExploreScreenState extends State<ExploreScreen> {
           )
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: SlideTransition(
+          position: _slideAnimation,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Search Bar
@@ -313,62 +413,58 @@ class _ExploreScreenState extends State<ExploreScreen> {
             
             const SizedBox(height: 25),
 
-            // Personalize Recommendations Card
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFFE3F2FD),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.blue.shade100),
-              ),
-              child: Row(
-                children: [
-                   Container(
-                     padding: const EdgeInsets.all(12),
-                     decoration: const BoxDecoration(
-                       color: AppColors.questBlue,
-                       shape: BoxShape.circle,
-                     ),
-                     child: const Icon(Icons.upload_file, color: Colors.white),
-                   ),
-                   const SizedBox(width: 15),
-                   Expanded(
-                     child: Column(
-                       crossAxisAlignment: CrossAxisAlignment.start,
-                       children: [
-                         const Text(
-                           "Personnaliser mes recommandations",
-                           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black),
-                         ),
-                         const SizedBox(height: 4),
-                         Text(
-                           "Ajoutez votre CV ou bulletin pour une orientation sur mesure.",
-                           style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
-                         ),
-                         const SizedBox(height: 15),
-                         SizedBox(
-                           width: double.infinity,
-                           height: 45,
-                           child: ElevatedButton.icon(
-                             onPressed: () {},
-                             icon: const Icon(Icons.add_circle_outline, size: 18),
-                             label: const Text("Déposer un document", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                             style: ElevatedButton.styleFrom(
-                               backgroundColor: AppColors.questBlue,
-                               foregroundColor: Colors.white,
-                               elevation: 0,
-                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                             ),
-                           ),
-                         )
-                       ],
-                     ),
-                   )
-                ],
-              ),
+            // Favorites Section
+            StreamBuilder<List<String>>(
+              stream: FirebaseAuth.instance.currentUser != null 
+                  ? _authService.getFavorites(FirebaseAuth.instance.currentUser!.uid)
+                  : Stream.value([]),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData || snapshot.data!.isEmpty) return const SizedBox.shrink();
+                
+                final favoriteIds = snapshot.data!;
+                final favoritePrograms = allPrograms.where((p) => favoriteIds.contains(p.id)).toList();
+
+                if (favoritePrograms.isEmpty) return const SizedBox.shrink();
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _sectionHeader("Mes Favoris", ""),
+                    const SizedBox(height: 15),
+                    SizedBox(
+                      height: 220,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: favoritePrograms.length,
+                        itemBuilder: (context, index) {
+                          final program = favoritePrograms[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 15),
+                            child: _buildTrackCard(
+                              title: program.name,
+                              subtitle: program.category,
+                              imageUrl: program.imageUrl,
+                              tag: "FAVORI",
+                              tagColor: Colors.red,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ProgramDetailScreenDynamic(programData: program),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 35),
+                  ],
+                );
+              },
             ),
 
-            const SizedBox(height: 35),
 
             // Trending Tracks
             _sectionHeader("Filières en vogue", "Voir tout", onAction: () {
@@ -389,19 +485,33 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     itemCount: _filteredTracks.length,
                     itemBuilder: (context, index) {
                       final track = _filteredTracks[index];
+                      // Find a matching program or fallback to index
+                      final ProgramData program = allPrograms.length > index 
+                          ? allPrograms[index] 
+                          : allPrograms[0];
+
                       return Padding(
                         padding: const EdgeInsets.only(right: 15),
                         child: _buildTrackCard(
-                          track['title'], 
-                          track['subtitle'], 
-                          track['imageUrl'],
-                          track['tag'],
-                          track['tagColor'],
+                          title: track['title'], 
+                          subtitle: track['subtitle'], 
+                          imageUrl: track['imageUrl'],
+                          tag: track['tag'],
+                          tagColor: track['tagColor'],
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ProgramDetailScreenDynamic(programData: program),
+                              ),
+                            );
+                          },
                         ),
                       );
                     },
                   ),
             ),
+
 
             const SizedBox(height: 35),
 
@@ -414,16 +524,53 @@ class _ExploreScreenState extends State<ExploreScreen> {
                  child: Center(child: Text("Aucun métier trouvé")),
                )
             else
-               ..._filteredCareers.map((career) => Padding(
-                 padding: const EdgeInsets.only(bottom: 10),
-                 child: _buildCareerItem(
-                   career['title'], 
-                   career['subtitle'], 
-                   career['icon'], 
-                   career['iconBg'],
-                   career['tags'],
-                 ),
-               )).toList(),
+              AnimatedBuilder(
+                animation: _controller,
+                builder: (context, child) {
+                  return CustomPaint(
+                    painter: _CareerPathPainter(
+                      itemCount: _filteredCareers.length,
+                      progress: _controller.value,
+                    ),
+                    child: Column(
+                      children: _filteredCareers.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final career = entry.value;
+                        
+                        final double start = (index * 0.2).clamp(0.0, 0.8);
+                        final double end = (start + 0.4).clamp(0.0, 1.0);
+                        
+                        final fadeAnim = CurvedAnimation(
+                          parent: _controller,
+                          curve: Interval(start, end, curve: Curves.easeOut),
+                        );
+                        
+                        final slideAnim = Tween<Offset>(
+                          begin: const Offset(0.2, 0),
+                          end: Offset.zero,
+                        ).animate(fadeAnim);
+
+                        return FadeTransition(
+                          opacity: fadeAnim,
+                          child: SlideTransition(
+                            position: slideAnim,
+                            child: SizedBox(
+                              height: 120,
+                              child: _buildCareerItem(
+                                career['title'], 
+                                career['subtitle'], 
+                                career['icon'], 
+                                career['iconBg'],
+                                career['tags'],
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  );
+                },
+              ),
 
             const SizedBox(height: 35),
 
@@ -448,6 +595,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
           ],
         ),
       ),
+    ),
+  ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddDialog,
         backgroundColor: AppColors.questBlue,
@@ -480,7 +629,14 @@ class _ExploreScreenState extends State<ExploreScreen> {
     );
   }
 
-  Widget _buildTrackCard(String title, String subtitle, String imageUrl, String tag, Color tagColor) {
+  Widget _buildTrackCard({
+    required String title, 
+    required String subtitle, 
+    required String imageUrl, 
+    required String tag, 
+    required Color tagColor,
+    required VoidCallback onTap,
+  }) {
     return Container(
       width: 200,
       decoration: BoxDecoration(
@@ -490,92 +646,97 @@ class _ExploreScreenState extends State<ExploreScreen> {
           BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-            child: Stack(
-              children: [
-                Image.network(
-                  imageUrl,
-                  height: 120,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return Container(
-                      height: 120,
-                      width: double.infinity,
-                      color: Colors.grey.shade100,
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          value: loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded /
-                                  loadingProgress.expectedTotalBytes!
-                              : null,
-                        ),
-                      ),
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) => Container(
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(20),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Stack(
+                children: [
+                  Image.network(
+                    imageUrl,
                     height: 120,
                     width: double.infinity,
-                    color: Colors.grey.shade200,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.image_not_supported_outlined, color: Colors.grey.shade400),
-                        const SizedBox(height: 4),
-                        Text(
-                          "Image non disponible",
-                          style: TextStyle(fontSize: 8, color: Colors.grey.shade500),
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        height: 120,
+                        width: double.infinity,
+                        color: Colors.grey.shade100,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                                : null,
+                          ),
                         ),
-                      ],
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      height: 120,
+                      width: double.infinity,
+                      color: Colors.grey.shade200,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.image_not_supported_outlined, color: Colors.grey.shade400),
+                          const SizedBox(height: 4),
+                          Text(
+                            "Image non disponible",
+                            style: TextStyle(fontSize: 8, color: Colors.grey.shade500),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
+                  Positioned(
+                    bottom: 10,
+                    left: 10,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: tagColor,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        tag, 
+                        style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)
+                      ),
+                    ),
+                  )
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title, 
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle, 
+                      style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
-                Positioned(
-                  bottom: 10,
-                  left: 10,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: tagColor,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      tag, 
-                      style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)
-                    ),
-                  ),
-                )
-              ],
-            ),
+              )
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title, 
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle, 
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          )
-        ],
+        ),
       ),
     );
   }
@@ -672,5 +833,56 @@ class _ExploreScreenState extends State<ExploreScreen> {
         ),
       ],
     );
+  }
+}
+
+class _CareerPathPainter extends CustomPainter {
+  final int itemCount;
+  final double progress;
+
+  _CareerPathPainter({required this.itemCount, required this.progress});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (itemCount <= 1) return;
+
+    final paint = Paint()
+      ..color = AppColors.questBlue.withOpacity(0.3)
+      ..strokeWidth = 3
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    final path = Path();
+    // Start from the first item icon center
+    // Item height (120) + padding inside card (16) + half icon size (25) = 41
+    const itemHeight = 120.0;
+    const iconOffset = 41.0; 
+    const iconCenterY = 41.0;
+    
+    path.moveTo(iconOffset, iconCenterY); // Start at first icon
+
+    for (int i = 0; i < itemCount - 1; i++) {
+      final startY = iconCenterY + (i * itemHeight);
+      final endY = iconCenterY + ((i + 1) * itemHeight);
+      
+      // Draw line to next item
+      path.lineTo(iconOffset, endY);
+    }
+
+    // Capture the path metrics to animate the drawing
+    final pathMetrics = path.computeMetrics();
+    final animatedPath = Path();
+
+    for (final metric in pathMetrics) {
+      final extractPath = metric.extractPath(0.0, metric.length * progress);
+      animatedPath.addPath(extractPath, Offset.zero);
+    }
+
+    canvas.drawPath(animatedPath, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _CareerPathPainter oldDelegate) {
+    return oldDelegate.progress != progress;
   }
 }

@@ -49,6 +49,55 @@ class _QuestEnvironmentScreenState extends State<QuestEnvironmentScreen> {
       'color': Colors.orange.shade100,
       'iconColor': Colors.orange
     },
+    {
+      'title': 'Télétravail',
+      'description': 'Flexible, autonome et à distance',
+      'icon': Icons.home_work,
+      'color': Colors.teal.shade100,
+      'iconColor': Colors.teal
+    },
+    {
+      'title': 'Laboratoire',
+      'description': 'Recherche, expérimentation et précision',
+      'icon': Icons.science,
+      'color': Colors.cyan.shade100,
+      'iconColor': Colors.cyan
+    },
+    {
+      'title': 'Hôpital/Clinique',
+      'description': 'Médical, urgent et humain',
+      'icon': Icons.local_hospital,
+      'color': Colors.red.shade100,
+      'iconColor': Colors.red
+    },
+    {
+      'title': 'Salle de Classe',
+      'description': 'Enseignement et transmission',
+      'icon': Icons.school,
+      'color': Colors.amber.shade100,
+      'iconColor': Colors.amber
+    },
+    {
+      'title': 'Atelier/Usine',
+      'description': 'Pratique, technique et production',
+      'icon': Icons.build,
+      'color': Colors.brown.shade100,
+      'iconColor': Colors.brown
+    },
+    {
+      'title': 'Commerce/Retail',
+      'description': 'Contact client et vente',
+      'icon': Icons.storefront,
+      'color': Colors.pink.shade100,
+      'iconColor': Colors.pink
+    },
+    {
+      'title': 'Startup/Innovation',
+      'description': 'Dynamique, risque et croissance',
+      'icon': Icons.rocket_launch,
+      'color': Colors.deepOrange.shade100,
+      'iconColor': Colors.deepOrange
+    },
   ];
 
 

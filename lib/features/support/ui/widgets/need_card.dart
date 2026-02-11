@@ -38,38 +38,46 @@ class NeedCard extends StatelessWidget {
                 backgroundImage: NetworkImage(need.userAvatar),
               ),
               const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    need.userName,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      need.userName,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
-                  ),
-                  Text(
-                    "${need.createdAt.day}/${need.createdAt.month}/${need.createdAt.year}",
-                    style: TextStyle(
-                      color: Colors.grey.shade500,
-                      fontSize: 12,
+                    Text(
+                      "${need.createdAt.day}/${need.createdAt.month}/${need.createdAt.year}",
+                      style: TextStyle(
+                        color: Colors.grey.shade500,
+                        fontSize: 12,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: AppColors.questBlue.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  need.category,
-                  style: const TextStyle(
-                    color: AppColors.questBlue,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: AppColors.questBlue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    need.category,
+                    style: const TextStyle(
+                      color: AppColors.questBlue,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
                 ),
               ),
@@ -82,6 +90,8 @@ class NeedCard extends StatelessWidget {
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 8),
           Text(
@@ -91,6 +101,8 @@ class NeedCard extends StatelessWidget {
               fontSize: 14,
               height: 1.4,
             ),
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 20),
           OutlinedButton(
