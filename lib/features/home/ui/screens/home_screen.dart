@@ -4,6 +4,7 @@ import 'package:mentor/features/explore/ui/screens/explore_screen.dart';
 import 'package:mentor/features/chat/ui/screens/chat_screen.dart';
 import 'package:mentor/features/profile/ui/screens/profile_screen.dart';
 import 'package:mentor/features/Quest/ui/screens/quest_welcome_screen.dart';
+import 'package:mentor/features/Quest/ui/screens/class_selection_screen.dart';
 import 'package:mentor/features/Quest/ui/screens/quest_results_screen.dart';
 import 'package:mentor/features/Quest/data/ai_recommendation_service.dart';
 import 'package:mentor/features/flieres/ui/screens/program_detail_screen_dynamic.dart';
@@ -400,7 +401,7 @@ class _HomeContent extends StatelessWidget {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => const QuestWelcomeScreen(),
+                                      builder: (context) => const ClassSelectionScreen(),
                                     ),
                                   );
                                 },
@@ -542,7 +543,7 @@ class _HomeContent extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const QuestWelcomeScreen(),
+                                builder: (context) => const ClassSelectionScreen(),
                               ),
                             );
                           },

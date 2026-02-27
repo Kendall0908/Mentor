@@ -13,9 +13,14 @@ class CloudinaryService {
   static const String _baseUrl = "https://api.cloudinary.com/v1_1/$_cloudName";
 
   /// Téléverse un fichier vers Cloudinary
+  /// Images → image/upload, PDFs/autres → raw/upload
   Future<Map<String, dynamic>?> uploadFile(PlatformFile file) async {
     try {
-      final url = Uri.parse("$_baseUrl/raw/upload"); // "raw" pour PDF/DOC, "image" pour PNG/JPG
+      // Utiliser image/upload pour les images, raw/upload pour le reste
+      final ext = file.extension?.toLowerCase() ?? '';
+      final isImage = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp'].contains(ext);
+      final resourceType = isImage ? 'image' : 'raw';
+      final url = Uri.parse("$_baseUrl/$resourceType/upload");
       
       var request = http.MultipartRequest("POST", url);
       

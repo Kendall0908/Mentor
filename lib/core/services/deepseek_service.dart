@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class DeepSeekService {
@@ -114,5 +115,5 @@ Réponds toujours en français et de manière concise mais complète.'''
     });
   }
 
-  int get messageCount => _conversationHistory.length - 1; // -1 pour exclure le message système
+  int get messageCount => _conversationHistory.length - 1;
 }
