@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AcademicNeed {
   final String id;
+  final String userId; // UID de l'auteur
   final String title;
   final String description;
   final String category; // 'Book', 'Certification', 'Tutorat', etc.
@@ -17,6 +18,7 @@ class AcademicNeed {
 
   AcademicNeed({
     required this.id,
+    required this.userId,
     required this.title,
     required this.description,
     required this.category,
@@ -33,6 +35,7 @@ class AcademicNeed {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'userId': userId,
       'title': title,
       'description': description,
       'category': category,
@@ -50,6 +53,7 @@ class AcademicNeed {
   factory AcademicNeed.fromMap(Map<String, dynamic> map, String docId) {
     return AcademicNeed(
       id: docId,
+      userId: map['userId'] ?? '',
       title: map['title'] ?? '',
       description: map['description'] ?? '',
       category: map['category'] ?? '',

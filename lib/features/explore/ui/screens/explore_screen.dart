@@ -6,6 +6,8 @@ import '../../../auth/logic/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mentor/features/flieres/data/program_data.dart';
 import 'package:mentor/features/flieres/ui/screens/program_detail_screen_dynamic.dart';
+import 'package:mentor/features/flieres/ui/screens/roadmap_screen.dart';
+import '../../../../core/services/deepseek_service.dart';
 
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({super.key});
@@ -19,6 +21,9 @@ class _ExploreScreenState extends State<ExploreScreen> with SingleTickerProvider
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+  
+  bool _isLoadingCareers = false;
+  final DeepSeekService _deepSeekService = DeepSeekService();
   
   // Données initiales pour les filières
   final List<Map<String, dynamic>> _allTracks = [
@@ -198,28 +203,87 @@ class _ExploreScreenState extends State<ExploreScreen> with SingleTickerProvider
 
   Future<void> _loadCustomCareers() async {
     final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      try {
-        final userData = await _authService.getUserData(user.uid);
-        if (userData != null && userData['custom_careers'] != null) {
-          final List<dynamic> customList = userData['custom_careers'];
+    if (user == null) return;
+    
+    setState(() => _isLoadingCareers = true);
+
+    try {
+      // 1. Récupérer les favoris actuels
+      final favoritesStream = _authService.getFavorites(user.uid);
+      final favoriteIds = await favoritesStream.first;
+      
+      if (favoriteIds.isEmpty) {
+        // Pas de favoris = métiers par défaut
+        setState(() {
+          _filteredCareers = List.from(_allCareers);
+          _isLoadingCareers = false;
+        });
+        return;
+      }
+
+      // Noms des filières favorites
+      final favoriteNames = allPrograms
+          .where((p) => favoriteIds.contains(p.id))
+          .map((p) => p.name)
+          .toList();
+
+      // 2. Vérifier le cache des suggestions IA
+      final cachedSuggestions = await _authService.getAICareersSuggestions(user.uid);
+      
+      if (cachedSuggestions != null) {
+        final List<String> cachedSources = List<String>.from(cachedSuggestions['sourceFavorites'] ?? []);
+        // Si les favoris n'ont pas changé, on utilise le cache
+        // Note: C'est une vérification simple, idéalement avec listEquals
+        if (cachedSources.join(',') == favoriteNames.join(',')) {
+          final List<dynamic> cachedCareers = cachedSuggestions['careers'];
           
           setState(() {
-            for (var career in customList) {
-              _allCareers.insert(0, {
+            _allCareers.clear();
+            for (var career in cachedCareers) {
+              _allCareers.add({
                 "title": career["title"],
                 "subtitle": career["subtitle"],
-                "icon": IconData(career["icon"], fontFamily: 'MaterialIcons'),
-                "iconBg": Color(career["iconBg"]).withOpacity(0.1),
-                "tags": List<String>.from(career["tags"]),
+                "icon": Icons.auto_awesome, // Icône par défaut pour l'IA
+                "iconBg": Colors.purple.withOpacity(0.1),
+                "tags": List<String>.from(career["tags"] ?? []),
               });
             }
-            _onSearchChanged();
+            _filteredCareers = List.from(_allCareers);
+            _isLoadingCareers = false;
           });
+          return;
         }
-      } catch (e) {
-        debugPrint("Erreur chargement métiers: $e");
       }
+
+      // 3. Générer de nouvelles suggestions via DeepSeek
+      final generatedCareers = await _deepSeekService.generateCareersForFavorites(favoriteNames);
+      
+      if (generatedCareers.isNotEmpty) {
+        // Sauvegarder dans le cache
+        await _authService.saveAICareersSuggestions(user.uid, generatedCareers, favoriteNames);
+        
+        setState(() {
+          _allCareers.clear();
+          for (var career in generatedCareers) {
+            _allCareers.add({
+              "title": career["title"],
+              "subtitle": career["subtitle"],
+              "icon": Icons.auto_awesome,
+              "iconBg": Colors.purple.withOpacity(0.1),
+              "tags": List<String>.from(career["tags"] ?? []),
+            });
+          }
+          _filteredCareers = List.from(_allCareers);
+        });
+      }
+      
+    } catch (e) {
+      debugPrint("Erreur chargement métiers dynamiques: $e");
+      setState(() {
+        _filteredCareers = List.from(_allCareers); // Repasser au par défaut en cas d'erreur
+      });
+    } finally {
+      if (mounted) setState(() => _isLoadingCareers = false);
     }
   }
 
@@ -321,7 +385,7 @@ class _ExploreScreenState extends State<ExploreScreen> with SingleTickerProvider
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.questBlue,
+                  backgroundColor: AppColors.accent,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 child: const Text("Ajouter à l'exploration", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -344,18 +408,8 @@ class _ExploreScreenState extends State<ExploreScreen> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFAFAFA),
-        elevation: 0,
-        title: const Text(
-          "Explorer MentOr",
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 20,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
+        title: const Text("Explorer MentOr"),
         centerTitle: false,
         leading: const Padding(
           padding: EdgeInsets.all(8.0),
@@ -432,7 +486,7 @@ class _ExploreScreenState extends State<ExploreScreen> with SingleTickerProvider
                     _sectionHeader("Mes Favoris", ""),
                     const SizedBox(height: 15),
                     SizedBox(
-                      height: 220,
+                      height: 270,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         itemCount: favoritePrograms.length,
@@ -446,6 +500,27 @@ class _ExploreScreenState extends State<ExploreScreen> with SingleTickerProvider
                               imageUrl: program.imageUrl,
                               tag: "FAVORI",
                               tagColor: Colors.red,
+                              actionButton: ElevatedButton.icon(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => RoadmapScreen(program: program),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.map, size: 14),
+                                label: const Text("Roadmap", style: TextStyle(fontSize: 12)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.amber.shade700,
+                                  foregroundColor: Colors.white,
+                                  minimumSize: const Size(double.infinity, 32),
+                                  padding: EdgeInsets.zero,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ),
                               onTap: () {
                                 Navigator.push(
                                   context,
@@ -516,9 +591,25 @@ class _ExploreScreenState extends State<ExploreScreen> with SingleTickerProvider
             const SizedBox(height: 35),
 
             // Future Careers
-            _sectionHeader("Métiers d’avenir", "Filtrer"),
+            _sectionHeader(
+              _isLoadingCareers ? "Génération par l'IA..." : "Métiers suggérés pour vous", 
+              "Filtrer"
+            ),
             const SizedBox(height: 15),
-            if (_filteredCareers.isEmpty) 
+            if (_isLoadingCareers)
+               const Padding(
+                 padding: EdgeInsets.symmetric(vertical: 40),
+                 child: Center(
+                   child: Column(
+                     children: [
+                       CircularProgressIndicator(color: AppColors.primary),
+                       SizedBox(height: 10),
+                       Text("Analyse de vos favoris...", style: TextStyle(color: Colors.grey, fontSize: 13)),
+                     ],
+                   )
+                 ),
+               )
+            else if (_filteredCareers.isEmpty) 
                const Padding(
                  padding: EdgeInsets.symmetric(vertical: 20),
                  child: Center(child: Text("Aucun métier trouvé")),
@@ -599,7 +690,7 @@ class _ExploreScreenState extends State<ExploreScreen> with SingleTickerProvider
   ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddDialog,
-        backgroundColor: AppColors.questBlue,
+        backgroundColor: AppColors.accent,
         child: const Icon(Icons.add, color: Colors.white, size: 30),
       ),
     );
@@ -636,6 +727,7 @@ class _ExploreScreenState extends State<ExploreScreen> with SingleTickerProvider
     required String tag, 
     required Color tagColor,
     required VoidCallback onTap,
+    Widget? actionButton,
   }) {
     return Container(
       width: 200,
@@ -731,6 +823,10 @@ class _ExploreScreenState extends State<ExploreScreen> with SingleTickerProvider
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    if (actionButton != null) ...[
+                      const SizedBox(height: 8),
+                      actionButton,
+                    ],
                   ],
                 ),
               )

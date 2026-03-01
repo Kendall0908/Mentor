@@ -141,10 +141,10 @@ final ProgramData softwareEngineeringProgram = ProgramData(
   ],
 );
 
-/// 🎨 DESIGN UX/UI
+/// 🎨 TWIN (ESATIC)
 final ProgramData uxDesignProgram = ProgramData(
   id: '2',
-  name: 'Design UX/UI',
+  name: 'TWIN',
   category: 'DESIGN & CRÉATIVITÉ',
   imageUrl: 'https://images.unsplash.com/photo-1561070791-2526d30994b5',
   isTrending: true,
@@ -165,11 +165,11 @@ final ProgramData uxDesignProgram = ProgramData(
   schools: [
     SchoolData(
       id: '3',
-      name: 'École de Design',
+      name: 'ESATIC',
       city: 'Abidjan',
       distance: 5.2,
       imageUrl: '/lib/features/flieres/ui/assets/images/esatic_logo.png',
-      websiteUrl: 'https://example.com',
+      websiteUrl: 'https://www.esatic.ci',
     ),
   ],
   videoLinks: [

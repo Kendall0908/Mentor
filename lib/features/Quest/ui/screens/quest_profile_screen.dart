@@ -104,7 +104,7 @@ class _QuestProfileScreenState extends State<QuestProfileScreen> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.questBlue,
+              backgroundColor: AppColors.accent,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             ),
@@ -178,7 +178,6 @@ class _QuestProfileScreenState extends State<QuestProfileScreen> {
     int selectedCount = _profileInterests.where((e) => e['selected']).length;
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Column(
           children: const [
@@ -194,7 +193,7 @@ class _QuestProfileScreenState extends State<QuestProfileScreen> {
              Text(
               "PROFIL UNIVERSITÉ",
                style: TextStyle(
-                 color: AppColors.textGrey, 
+                 color: AppColors.textSecondary, 
                  fontSize: 11, 
                  letterSpacing: 1.5,
                  fontWeight: FontWeight.w500
@@ -202,11 +201,8 @@ class _QuestProfileScreenState extends State<QuestProfileScreen> {
             ),
           ],
         ),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
       ),

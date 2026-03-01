@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../widgets/need_card.dart';
 import 'add_need_screen.dart';
 import '../../data/models/academic_need.dart';
 import '../../logic/support_service.dart';
+import '../../../auth/logic/auth_service.dart';
 
 class SupportFeedScreen extends StatefulWidget {
   const SupportFeedScreen({super.key});
@@ -16,19 +18,8 @@ class _SupportFeedScreenState extends State<SupportFeedScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFAFAFA),
-        elevation: 0,
-        title: const Text(
-          "Entraide Académique",
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 20,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        centerTitle: true,
+        title: const Text("Entraide Académique"),
       ),
       body: StreamBuilder<List<AcademicNeed>>(
         stream: SupportService.getNeedsStream(),
@@ -79,7 +70,7 @@ class _SupportFeedScreenState extends State<SupportFeedScreen> {
             MaterialPageRoute(builder: (context) => const AddNeedScreen()),
           );
         },
-        backgroundColor: AppColors.questBlue,
+        backgroundColor: AppColors.accent,
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );
@@ -131,26 +122,62 @@ class _SupportFeedScreenState extends State<SupportFeedScreen> {
                       
                       const SizedBox(height: 30),
                       
-                      if (need.price != null && need.price!.isNotEmpty) 
-                        SizedBox(
-                          width: double.infinity,
-                          height: 55,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                              _showPaymentOptions(context, need);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                              elevation: 0,
-                            ),
-                            child: Text(
-                              "Payer ${need.price} pour accéder",
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
-                          ),
-                        ),
+                      // Payment button — hidden for the author
+                      Builder(
+                        builder: (context) {
+                          final currentUser = FirebaseAuth.instance.currentUser;
+                          final bool isAuthor = currentUser != null && need.userId == currentUser.uid;
+                          
+                          if (isAuthor) {
+                            // Author sees info message instead of pay button
+                            return Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.orange.shade50,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.orange.shade200),
+                              ),
+                              child: const Row(
+                                children: [
+                                  Icon(Icons.info_outline, color: Colors.orange),
+                                  SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      "C'est votre demande. Seuls les autres utilisateurs peuvent effectuer le paiement.",
+                                      style: TextStyle(fontSize: 13, color: Colors.orange),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+                          
+                          if (need.price != null && need.price!.isNotEmpty) {
+                            return SizedBox(
+                              width: double.infinity,
+                              height: 55,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  _showPaymentOptions(context, need);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                                  elevation: 0,
+                                ),
+                                child: Text(
+                                  "Payer ${need.price} pour accéder",
+                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                                ),
+                              ),
+                            );
+                          }
+                          
+                          return const SizedBox.shrink();
+                        },
+                      ),
                       const SizedBox(height: 10),
                       SizedBox(
                         width: double.infinity,
@@ -280,11 +307,29 @@ class _SupportFeedScreenState extends State<SupportFeedScreen> {
       builder: (context) => const Center(child: CircularProgressIndicator()),
     );
 
-    Future.delayed(const Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 2), () async {
       Navigator.pop(context); // Close loading
       Navigator.pop(context); // Close payment options
       
-      _showPaymentSuccess(context, need);
+      // Send notification to the author
+      if (need.userId.isNotEmpty) {
+        final currentUser = FirebaseAuth.instance.currentUser;
+        String payerName = 'Un utilisateur';
+        if (currentUser != null) {
+          final userData = await AuthService().getUserData(currentUser.uid);
+          payerName = userData?['name'] ?? 'Un utilisateur';
+        }
+        await SupportService.sendPaymentNotification(
+          authorUserId: need.userId,
+          payerName: payerName,
+          needTitle: need.title,
+          amount: need.price ?? '0',
+        );
+      }
+
+      if (context.mounted) {
+        _showPaymentSuccess(context, need);
+      }
     });
   }
 
@@ -314,7 +359,7 @@ class _SupportFeedScreenState extends State<SupportFeedScreen> {
                   Navigator.pop(context);
                   // Ici on pourrait rediriger vers le contenu
                 },
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.questBlue, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.accent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                 child: const Text("Accéder au contenu", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               ),
             ),
@@ -457,7 +502,7 @@ class _SupportFeedScreenState extends State<SupportFeedScreen> {
                   _showSuccessHelp(context, need.userName);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.questBlue,
+                  backgroundColor: AppColors.accent,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                   elevation: 0,
                 ),

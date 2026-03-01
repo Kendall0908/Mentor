@@ -149,19 +149,8 @@ class _QuestResultsProcessingScreenState extends State<QuestResultsProcessingScr
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
       appBar: AppBar(
-        title: const Text(
-          "Calcul des résultats",
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: const Color(0xFFFAFAFA),
-        elevation: 0,
+        title: const Text("Calcul des résultats"),
         leading: Container(),
       ),
       body: SafeArea(

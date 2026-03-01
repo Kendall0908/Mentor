@@ -185,7 +185,6 @@ class _BulletinUploadScreenState extends State<BulletinUploadScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
       appBar: AppBar(
         title: Column(
           children: const [
@@ -201,7 +200,7 @@ class _BulletinUploadScreenState extends State<BulletinUploadScreen> {
             Text(
               "BULLETINS SCOLAIRES",
               style: TextStyle(
-                color: AppColors.textGrey,
+                color: AppColors.textSecondary,
                 fontSize: 11,
                 letterSpacing: 1.5,
                 fontWeight: FontWeight.w500,
@@ -209,11 +208,8 @@ class _BulletinUploadScreenState extends State<BulletinUploadScreen> {
             ),
           ],
         ),
-        centerTitle: true,
-        backgroundColor: const Color(0xFFFAFAFA),
-        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+          icon: const Icon(Icons.arrow_back_ios),
           onPressed: () => Navigator.pop(context),
         ),
       ),

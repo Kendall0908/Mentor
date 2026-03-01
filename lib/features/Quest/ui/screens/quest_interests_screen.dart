@@ -45,21 +45,10 @@ class _QuestInterestsScreenState extends State<QuestInterestsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA), // Slightly off-white for depth
       appBar: AppBar(
-        title: const Text(
-          "Vos Passions",
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: const Color(0xFFFAFAFA),
-        elevation: 0,
+        title: const Text("Vos Passions"),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+          icon: const Icon(Icons.arrow_back_ios),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [

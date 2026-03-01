@@ -16,21 +16,10 @@ class QuestResultsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
       appBar: AppBar(
-        title: const Text(
-          "Recommandations MentOr",
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: const Color(0xFFFAFAFA),
-        elevation: 0,
+        title: const Text("Recommandations MentOr"),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+          icon: const Icon(Icons.arrow_back_ios),
           onPressed: () {
             Navigator.pushAndRemoveUntil(
               context,
@@ -182,7 +171,7 @@ class QuestResultsScreen extends StatelessWidget {
                     ),
                   ),
                   CircleAvatar(
-                    backgroundColor: AppColors.questBlue,
+                    backgroundColor: AppColors.accent,
                     child: Text(
                       "$percentage%",
                       style: const TextStyle(
@@ -227,39 +216,94 @@ class QuestResultsScreen extends StatelessWidget {
                       : const SizedBox.shrink(),
                   ),
                   const SizedBox(width: 10),
-                  // Save Button
-                  Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(12),
-                      onTap: () async {
-                         final user = FirebaseAuth.instance.currentUser;
-                         if (user != null) {
-                           await AuthService().saveUserChoice(user.uid, {
-                              'programName': programData.name,
-                              'schoolName': 'Non défini', 
-                              'validatedAt': DateTime.now().toIso8601String(),
-                              'status': 'bookmarked',
-                           });
-                           ScaffoldMessenger.of(context).showSnackBar(
-                             const SnackBar(content: Text('🔖 Filière sauvegardée dans vos favoris !'), backgroundColor: Colors.green),
-                           );
-                         } else {
-                           ScaffoldMessenger.of(context).showSnackBar(
-                             const SnackBar(content: Text('Connectez-vous pour sauvegarder')),
-                           );
-                         }
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey.shade300),
-                        ),
-                        child: const Icon(Icons.bookmark_border, color: Colors.grey),
-                      ),
-                    ),
+                  // Save Button with favorite state
+                  Builder(
+                    builder: (context) {
+                      final user = FirebaseAuth.instance.currentUser;
+                      if (user == null) {
+                        return Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Connectez-vous pour sauvegarder')),
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.grey.shade300),
+                              ),
+                              child: const Icon(Icons.bookmark_border, color: Colors.grey),
+                            ),
+                          ),
+                        );
+                      }
+                      return StreamBuilder<List<String>>(
+                        stream: AuthService().getFavorites(user.uid),
+                        builder: (context, snapshot) {
+                          final favorites = snapshot.data ?? [];
+                          final isFavorite = favorites.contains(programData.id);
+                          
+                          return Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(12),
+                              onTap: () async {
+                                if (!isFavorite) {
+                                  // Adding — check limit
+                                  final success = await AuthService().toggleFavorite(user.uid, programData.id);
+                                  if (success) {
+                                    final metadata = {
+                                      'id': programData.id,
+                                      'name': programData.name,
+                                      'category': programData.category,
+                                      'imageUrl': programData.imageUrl,
+                                      'skills': programData.skills,
+                                    };
+                                    await AuthService().saveFavoriteMetadata(user.uid, metadata);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('🔖 Filière sauvegardée dans vos favoris !'), backgroundColor: Colors.green),
+                                    );
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('⚠️ Vous ne pouvez pas dépasser 2 filières en favoris.'),
+                                        backgroundColor: Colors.orange,
+                                      ),
+                                    );
+                                  }
+                                } else {
+                                  // Removing — always allowed
+                                  await AuthService().toggleFavorite(user.uid, programData.id);
+                                  await AuthService().deleteFavoriteMetadata(user.uid, programData.id);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Filière retirée des favoris'), backgroundColor: Colors.orange),
+                                  );
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: isFavorite ? AppColors.questBlue.withOpacity(0.1) : Colors.grey.shade100,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: isFavorite ? AppColors.questBlue : Colors.grey.shade300,
+                                  ),
+                                ),
+                                child: Icon(
+                                  isFavorite ? Icons.bookmark : Icons.bookmark_border,
+                                  color: isFavorite ? AppColors.questBlue : Colors.grey,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
                   )
                 ],
               ),

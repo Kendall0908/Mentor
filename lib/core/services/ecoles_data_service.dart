@@ -22,29 +22,43 @@ class EcolesDataService {
     if (_isLoaded) return;
 
     try {
-      final directory = await getApplicationDocumentsDirectory();
-      final file = File('${directory.path}/$_fileName');
-
-      // 1. Essayer de charger depuis le cache local
-      if (await file.exists()) {
-        debugPrint("📂 Chargement depuis le cache local...");
-        final jsonString = await file.readAsString();
-        final List<dynamic> jsonList = json.decode(jsonString);
-        _allEcoles = jsonList.map((json) => EcoleModel.fromJson(json)).toList();
-        _isLoaded = true;
-        
-        // En arrière-plan, vérifier si une mise à jour est dispo (optionnel, ici on le fait au besoin)
-        _downloadAndCache(file); 
+      if (kIsWeb) {
+        // Le web ne supporte pas File() et path_provider de la même manière
+        debugPrint("🌐 Exécution sur le Web : téléchargement direct sans cache fichier...");
+        final response = await http.get(Uri.parse(_dataUrl));
+        if (response.statusCode == 200) {
+          final List<dynamic> jsonList = json.decode(response.body);
+          _allEcoles = jsonList.map((json) => EcoleModel.fromJson(json)).toList();
+          _isLoaded = true;
+          debugPrint("✅ Données téléchargées pour le web !");
+        } else {
+          debugPrint("❌ Erreur téléchargement web: ${response.statusCode}");
+        }
       } else {
-        // 2. Si pas de cache, télécharger
-        debugPrint("☁️ Aucun cache trouvé, téléchargement depuis Cloudinary...");
-        await _downloadAndCache(file);
-        
+        final directory = await getApplicationDocumentsDirectory();
+        final file = File('${directory.path}/$_fileName');
+
+        // 1. Essayer de charger depuis le cache local (Mobile/Desktop)
         if (await file.exists()) {
-           final jsonString = await file.readAsString();
-           final List<dynamic> jsonList = json.decode(jsonString);
-           _allEcoles = jsonList.map((json) => EcoleModel.fromJson(json)).toList();
-           _isLoaded = true;
+          debugPrint("📂 Chargement depuis le cache local...");
+          final jsonString = await file.readAsString();
+          final List<dynamic> jsonList = json.decode(jsonString);
+          _allEcoles = jsonList.map((json) => EcoleModel.fromJson(json)).toList();
+          _isLoaded = true;
+          
+          // En arrière-plan, vérifier si une mise à jour est dispo
+          _downloadAndCache(file); 
+        } else {
+          // 2. Si pas de cache, télécharger
+          debugPrint("☁️ Aucun cache trouvé, téléchargement depuis Cloudinary...");
+          await _downloadAndCache(file);
+          
+          if (await file.exists()) {
+             final jsonString = await file.readAsString();
+             final List<dynamic> jsonList = json.decode(jsonString);
+             _allEcoles = jsonList.map((json) => EcoleModel.fromJson(json)).toList();
+             _isLoaded = true;
+          }
         }
       }
     } catch (e) {
@@ -53,7 +67,7 @@ class EcolesDataService {
     }
   }
 
-  /// Télécharge le fichier et le met en cache
+  /// Télécharge le fichier et le met en cache (Mobile/Desktop unique)
   Future<void> _downloadAndCache(File file) async {
     try {
       final response = await http.get(Uri.parse(_dataUrl));

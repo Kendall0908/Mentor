@@ -31,15 +31,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: const Color(0xFFFAFAFA),
         appBar: AppBar(
-          title: const Text(
-            "Notifications",
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-          ),
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
-          elevation: 0,
+          title: const Text("Notifications"),
           bottom: const TabBar(
             labelColor: AppColors.questBlue,
             unselectedLabelColor: Colors.grey,
@@ -281,7 +274,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.questBlue,
+              backgroundColor: AppColors.accent,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
             child: const Text("Voir plus", style: TextStyle(color: Colors.white)),

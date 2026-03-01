@@ -47,15 +47,6 @@ class _HomeScreenState extends State<HomeScreen> {
             _currentIndex = index;
           });
         },
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        selectedItemColor: AppColors.questBlue,
-        unselectedItemColor: Colors.grey.shade400,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
-        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 10),
-        elevation: 10,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: "Accueil"),
           BottomNavigationBarItem(icon: Icon(Icons.explore), label: "Explorer"),
@@ -93,20 +84,9 @@ class _HomeContent extends StatelessWidget {
         final userProgress = userModel?.progress ?? 0.1;
 
         return Scaffold(
-          backgroundColor: const Color(0xFFFAFAFA),
           appBar: AppBar(
-            backgroundColor: const Color(0xFFFAFAFA),
-            elevation: 0,
-            automaticallyImplyLeading: false, // Disable back button on home screen
-            title: const Text(
-              "Accueil",
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 20,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            centerTitle: true,
+            automaticallyImplyLeading: false,
+            title: const Text("Accueil"),
             // Header profile removed as requested (redundant with the one below)
             actions: [
 
@@ -406,7 +386,7 @@ class _HomeContent extends StatelessWidget {
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.questBlue,
+                                  backgroundColor: AppColors.accent,
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                   elevation: 0,
                                 ),
@@ -548,7 +528,7 @@ class _HomeContent extends StatelessWidget {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.questBlue,
+                            backgroundColor: AppColors.accent,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),

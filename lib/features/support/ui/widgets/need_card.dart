@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../data/models/academic_need.dart';
+import '../../logic/support_service.dart';
 
 class NeedCard extends StatelessWidget {
   final AcademicNeed need;
@@ -14,6 +16,9 @@ class NeedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    final bool isAuthor = currentUser != null && need.userId == currentUser.uid;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(20),
@@ -61,7 +66,13 @@ class NeedCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const Spacer(),
+              // Delete button — visible only for the author
+              if (isAuthor)
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, color: Colors.red, size: 22),
+                  tooltip: 'Supprimer',
+                  onPressed: () => _confirmDelete(context),
+                ),
               Flexible(
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -129,6 +140,47 @@ class NeedCard extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text("Supprimer la demande ?"),
+        content: const Text("Cette action est irréversible. Voulez-vous continuer ?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text("Annuler"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              try {
+                await SupportService.deleteNeed(need.id);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("✅ Demande supprimée."),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Erreur : $e")),
+                  );
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text("Supprimer", style: TextStyle(color: Colors.white)),
           ),
         ],
       ),

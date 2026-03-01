@@ -44,17 +44,10 @@ class _AddNeedScreenState extends State<AddNeedScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        title: const Text(
-          "Publier un besoin",
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 0,
+        title: const Text("Publier un besoin"),
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.black),
+          icon: const Icon(Icons.close),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -146,7 +139,7 @@ class _AddNeedScreenState extends State<AddNeedScreen> {
                 child: ElevatedButton(
                   onPressed: _submitForm,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.questBlue,
+                    backgroundColor: AppColors.accent,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     elevation: 0,
                   ),
@@ -416,6 +409,7 @@ class _AddNeedScreenState extends State<AddNeedScreen> {
       // Create new need object
       final newNeed = AcademicNeed(
         id: '',
+        userId: currentUser.uid,
         title: _title,
         description: _description,
         category: _category,

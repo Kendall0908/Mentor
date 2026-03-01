@@ -1,0 +1,19 @@
+Analyzing roadmap_screen.dart...                                
+
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\flieres\ui\screens\roadmap_screen.dart:232:60 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\flieres\ui\screens\roadmap_screen.dart:385:46 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\flieres\ui\screens\roadmap_screen.dart:437:23 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\flieres\ui\screens\roadmap_screen.dart:438:23 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\flieres\ui\screens\roadmap_screen.dart:468:51 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\flieres\ui\screens\roadmap_screen.dart:473:32 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\flieres\ui\screens\roadmap_screen.dart:487:34 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\flieres\ui\screens\roadmap_screen.dart:500:51 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\flieres\ui\screens\roadmap_screen.dart:505:44 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\flieres\ui\screens\roadmap_screen.dart:523:46 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\flieres\ui\screens\roadmap_screen.dart:591:38 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\flieres\ui\screens\roadmap_screen.dart:593:57 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\flieres\ui\screens\roadmap_screen.dart:610:38 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\flieres\ui\screens\roadmap_screen.dart:620:36 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\flieres\ui\screens\roadmap_screen.dart:622:55 - deprecated_member_use
+
+15 issues found. (ran in 5.9s)

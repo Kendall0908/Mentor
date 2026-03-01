@@ -98,7 +98,10 @@ class AuthService {
   }
 
   // ❤️ GESTION DES FAVORIS
-  Future<void> toggleFavorite(String uid, String programId) async {
+  static const int maxFavorites = 2;
+
+  /// Returns true if operation succeeded, false if limit was reached (when adding).
+  Future<bool> toggleFavorite(String uid, String programId) async {
     final docRef = _firestore.collection('users').doc(uid);
     final doc = await docRef.get();
     
@@ -107,15 +110,22 @@ class AuthService {
       final favorites = List<String>.from(data['favorites'] ?? []);
       
       if (favorites.contains(programId)) {
+        // Removing — always allowed
         favorites.remove(programId);
+        await docRef.update({'favorites': favorites});
+        return true;
       } else {
+        // Adding — check limit
+        if (favorites.length >= maxFavorites) {
+          return false; // Limit reached
+        }
         favorites.add(programId);
+        await docRef.update({'favorites': favorites});
+        return true;
       }
-      
-      await docRef.update({'favorites': favorites});
     } else {
-       // Create doc if not exists (should not happen for logged user but good for safety)
        await docRef.set({'favorites': [programId]}, SetOptions(merge: true));
+       return true;
     }
   }
 
@@ -126,6 +136,65 @@ class AuthService {
       }
       return [];
     });
+  }
+
+  // 📝 MÉTADONNÉES DES FAVORIS (POUR ROADMAP IA)
+  Future<void> saveFavoriteMetadata(String uid, Map<String, dynamic> programMetadata) async {
+    final programId = programMetadata['id'];
+    await _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('favorite_details')
+        .doc(programId)
+        .set({
+      ...programMetadata,
+      'addedAt': FieldValue.serverTimestamp(),
+      // 'roadmap' sera ajouté plus tard par l'IA lors du premier affichage
+    }, SetOptions(merge: true));
+  }
+
+  Future<void> deleteFavoriteMetadata(String uid, String programId) async {
+    await _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('favorite_details')
+        .doc(programId)
+        .delete();
+  }
+
+  Stream<List<Map<String, dynamic>>> getFavoriteDetails(String uid) {
+    return _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('favorite_details')
+        .orderBy('addedAt', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
+  }
+
+  // 🤖 SUGGESTIONS IA EN CACHE
+  Future<void> saveAICareersSuggestions(String uid, List<Map<String, dynamic>> careers, List<String> sourceFavorites) async {
+    await _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('ai_suggestions')
+        .doc('careers')
+        .set({
+      'careers': careers,
+      'sourceFavorites': sourceFavorites,
+      'generatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Future<Map<String, dynamic>?> getAICareersSuggestions(String uid) async {
+    final doc = await _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('ai_suggestions')
+        .doc('careers')
+        .get();
+    
+    return doc.data();
   }
 
   // 🔄 STREAM DE L'UTILISATEUR ACTUEL

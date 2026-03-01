@@ -115,5 +115,131 @@ Réponds toujours en français et de manière concise mais complète.'''
     });
   }
 
+  Future<String> generateRoadmap({
+    required String programName,
+    required List<String> skills,
+    required String category,
+  }) async {
+    if (_apiKey.isEmpty) {
+      throw Exception('Clé API DeepSeek non configurée. Vérifiez votre fichier .env');
+    }
+
+    final prompt = '''Agis comme un conseiller d'orientation expert en Côte d'Ivoire.
+Génère une roadmap détaillée et progressive pour un étudiant qui souhaite réussir dans la filière : "$programName" (Catégorie: $category).
+Les compétences clés à développer sont : ${skills.join(', ')}.
+
+Tu DOIS retourner UNIQUEMENT un tableau JSON strict contenant les différentes étapes.
+Chaque étape doit avoir ce format exact :
+[
+  {
+    "phase": "Nom de la phase (ex: Phase 1 : Préparation & Fondation)",
+    "description": "Une courte phrase introduisant la phase.",
+    "steps": [
+      "Première action clé à réaliser.",
+      "Deuxième action concrète."
+    ]
+  },
+  ... (ajouter 3 à 4 phases progressives)
+]
+
+Sois concis, utilise des actions concrètes, et adapte-toi aux réalités locales (mentionne des certifications ou contextes ivoiriens pertinents).
+NE renvoie AUCUN texte avant ou après le JSON. Juste le JSON brut.''';
+
+    try {
+      final response = await http.post(
+        Uri.parse(_baseUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $_apiKey',
+        },
+        body: jsonEncode({
+          'model': 'deepseek-chat',
+          'messages': [
+            // Utiliser un contexte minimal sans polluer l'historique utilisateur
+            {'role': 'system', 'content': 'Tu es un expert en conception de parcours académiques et professionnels.'},
+            {'role': 'user', 'content': prompt}
+          ],
+          'temperature': 0.7,
+          'max_tokens': 1000,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final content = data['choices'][0]['message']['content'].toString().trim();
+        // Extract JSON array if it's wrapped in triple backticks
+        if (content.startsWith('```json')) {
+          return content.replaceAll(RegExp(r'^```json\n'), '').replaceAll(RegExp(r'\n```$'), '').trim();
+        } else if (content.startsWith('```')) {
+          return content.replaceAll(RegExp(r'^```\n'), '').replaceAll(RegExp(r'\n```$'), '').trim();
+        }
+        return content;
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw Exception('Erreur API DeepSeek: ${errorData['error']?['message'] ?? response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Erreur de génération IA: $e');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> generateCareersForFavorites(List<String> programNames) async {
+    if (_apiKey.isEmpty) {
+      throw Exception('Clé API DeepSeek non configurée.');
+    }
+
+    final prompt = '''
+Agis comme un conseiller d'orientation expert en Côte d'Ivoire.
+L'étudiant a mis en favori ces filières : ${programNames.join(', ')}.
+Génère EXACTEMENT 3 métiers d'avenir pertinents qui croisent ces domaines.
+
+Le résultat DOIT être un JSON valide, sans markdown, sans explication supplémentaire. Voici le format attendu :
+[
+  {
+    "title": "Nom du métier",
+    "subtitle": "Petite description engageante (1 phrase)",
+    "tags": ["Niveau", "Salaire fcfa / an"]
+  }
+]
+''';
+
+    try {
+      final response = await http.post(
+        Uri.parse(_baseUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $_apiKey',
+        },
+        body: jsonEncode({
+          'model': 'deepseek-chat',
+          'messages': [
+            {'role': 'system', 'content': 'Tu es un générateur de données JSON. Ne renvoie que du JSON.'},
+            {'role': 'user', 'content': prompt}
+          ],
+          'temperature': 0.7,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        String rawContent = data['choices'][0]['message']['content'];
+        
+        // Nettoyer le markdown si DeepSeek l'a quand même ajouté
+        if (rawContent.startsWith('```json')) {
+          rawContent = rawContent.replaceAll('```json', '').replaceAll('```', '').trim();
+        }
+
+        final List<dynamic> jsonList = jsonDecode(rawContent);
+        return List<Map<String, dynamic>>.from(jsonList);
+      } else {
+        throw Exception('Erreur API DeepSeek: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint("Erreur lors de la génération des métiers: $e");
+      // Fallback par défaut si l'API échoue
+      return [];
+    }
+  }
+
   int get messageCount => _conversationHistory.length - 1;
 }

@@ -221,7 +221,6 @@ class _GradesRecapScreenState extends State<GradesRecapScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
       appBar: AppBar(
         title: const Column(
           children: [
@@ -237,7 +236,7 @@ class _GradesRecapScreenState extends State<GradesRecapScreen> {
             Text(
               "MOYENNES SCOLAIRES",
               style: TextStyle(
-                color: AppColors.textGrey,
+                color: AppColors.textSecondary,
                 fontSize: 11,
                 letterSpacing: 1.5,
                 fontWeight: FontWeight.w500,
@@ -245,11 +244,8 @@ class _GradesRecapScreenState extends State<GradesRecapScreen> {
             ),
           ],
         ),
-        centerTitle: true,
-        backgroundColor: const Color(0xFFFAFAFA),
-        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+          icon: const Icon(Icons.arrow_back_ios),
           onPressed: () => Navigator.pop(context),
         ),
       ),

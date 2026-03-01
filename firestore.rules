@@ -12,6 +12,22 @@ service cloud.firestore {
       match /choices/{choiceId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
+
+      // ✅ NOUVELLE RÈGLE : Autoriser l'accès à 'favorite_details'
+      match /favorite_details/{programId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // ✅ NOUVELLE RÈGLE : Autoriser l'accès à 'ai_suggestions'
+      match /ai_suggestions/{docId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // ✅ Notifications : lecture par le propriétaire, écriture par tout utilisateur authentifié
+      match /notifications/{notifId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow write: if request.auth != null;
+      }
     }
     
     // Entraide Académique (règles existantes conservées)

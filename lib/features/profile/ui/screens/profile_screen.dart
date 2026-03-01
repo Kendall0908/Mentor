@@ -44,23 +44,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final userModel = userData != null ? UserModel.fromMap(userData) : null;
 
         return Scaffold(
-          backgroundColor: Colors.white,
           appBar: AppBar(
-            backgroundColor: Colors.white,
-            elevation: 0,
-            leading: IconButton(
-              icon: const Icon(Icons.settings, color: Colors.black),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Paramètres bientôt disponibles !")),
-                );
-              },
-            ),
-            title: const Text(
-              "Mon Profil",
-              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
-            ),
-            centerTitle: true,
+            title: const Text("Mon Profil"),
             actions: [
               IconButton(
                 icon: const Icon(Icons.logout, color: Colors.black),
